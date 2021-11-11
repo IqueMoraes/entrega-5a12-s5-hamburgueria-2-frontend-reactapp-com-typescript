@@ -1,4 +1,7 @@
 import { createGlobalStyle  } from 'styled-components';
+import { makeStyles } from '@material-ui/styles'
+import { createTheme } from '@material-ui/core/styles'
+
 
 export const GlobalStyle = createGlobalStyle `
     
@@ -50,6 +53,7 @@ table {
 h1{
     font-weight: bold;
     font-size: 26px;
+	color: red;
 }
 h2{
     font-weight: bold;
@@ -61,3 +65,34 @@ h3{
 }
 
 `
+
+
+export const useStyles = makeStyles({
+	inputStyles:{
+
+	}
+})
+
+
+interface PaletteColor {
+	light?: string;
+	main: string;
+	dark?: string;
+	contrastText?: string;
+  }
+
+  export const barTheme = createTheme({
+	  palette:{
+		  primary:{
+			  main: '#27AE60'
+		  },
+		  secondary:{
+			  main: '#EB5757'
+		  },
+		  error: {
+			  main: "#E60000",},
+		  warning: { main: "#FFCD07",},
+		  info: { main:"#155BCB",},
+		  success:{ main: "#168821",},
+	  }
+  })

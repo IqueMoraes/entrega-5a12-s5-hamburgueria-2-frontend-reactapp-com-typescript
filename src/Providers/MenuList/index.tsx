@@ -5,7 +5,9 @@ import {
   ReactNode,
   useEffect,
 } from "react";
+import { object } from "yup/lib/locale";
 import { Api } from "../../Services/api";
+import { useUser } from "../User";
 
 interface Meal {
   title: string;
@@ -25,16 +27,23 @@ interface MenuProviderValues {
   FilterMenu: (word: string) => void;
 }
 
+
+
 const MenuContext = createContext<MenuProviderValues>({} as MenuProviderValues);
 
 export const MenuProvider = ({ children }: MenuProps) => {
   const [menuList, setMenuList] = useState<Meal[]>([] as Meal[]);
   const [filteredMenuList, setFilteredMenuList] = useState<Meal[]>([] as Meal[]);
-  const authToken = () => localStorage.getItem("token") || "";
-
+  
   useEffect(() => {
-    Api.get("/meals", { headers: { Authorization: `Bearer ${authToken}` } })
-      .then((res) => setMenuList(res.data))
+    const authToken = JSON.parse(localStorage.getItem("@Gastrobar:token") || "");
+    console.log("atualizou o provider menulist");
+    Api.get("/meals", { 
+      headers: { 
+        Authorization: `Bearer ${authToken}` 
+      }
+    })
+      .then((res) => console.log("entrei no /meals", res.data))
       .catch((err) => console.log(err));
   }, []);
 

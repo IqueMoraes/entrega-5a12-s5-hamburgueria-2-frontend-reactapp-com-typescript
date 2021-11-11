@@ -1,9 +1,8 @@
 
-
-export const Comments = () => {
-    return (
-        <div>
-            oi
-        </div>
+export const RestComments = () => {
+    return(
+        <>
+        <p>Comentários do restaurante</p>
+        </>
     )
 }

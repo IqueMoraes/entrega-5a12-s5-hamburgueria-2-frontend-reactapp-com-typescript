@@ -1,11 +1,11 @@
 
-import './App.css';
+import { GlobalStyle } from './globalStyle';
 import { Routes } from './Routes';
 
 function App() {
   return (
     <>
-    <div> yeyy</div>
+    <GlobalStyle/>
     <Routes/>
     </>
   );
