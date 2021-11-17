@@ -1,36 +1,26 @@
-import { useEffect, useState } from "react";
 import { Switch, Route, Redirect } from "react-router-dom";
-import { Comments } from "./Components/Comments";
+import { RestComments } from "./Pages/Comments";
 import { Homepage } from "./Pages/Homepage";
 import { SignIn } from "./Pages/Signin";
 import { SignUp } from "./Pages/Signup";
-// import { useUser } from "./Providers/User";
+import { useUser } from "./Providers/User";
 
 export const Routes = () => {
-  const [token, setToken] = useState<string>("");
-
-  useEffect(() => {
-    const mylocalstorage = localStorage.getItem("@GastrobarToken");
-    console.log(mylocalstorage);
-    if (mylocalstorage) {
-      console.log("passei na veri");
-      setToken(mylocalstorage);
-    }
-  }, []);
+  const { authToken } = useUser();
 
   return (
     <Switch>
       <Route exact path="/">
-        {token === "" ? <Redirect to="/signin" /> : <Homepage />}
+        <RestComments />
       </Route>
       <Route path="/signin">
-        {token === "" ? <SignIn /> : <Redirect to="/" />}
+        {!!authToken ? <Redirect to="/homepage" /> : <SignIn />}
       </Route>
       <Route path="/signup">
-        <SignUp />
+        {!!authToken ? <Redirect to="/homepage" /> : <SignUp />}
       </Route>
-      <Route path="/comments">
-        <Comments />
+      <Route path="/homepage">
+        <Homepage />
       </Route>
     </Switch>
   );

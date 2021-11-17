@@ -1,67 +1,94 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, ReactNode, useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
 import { Api } from "../../Services/api";
+import { useCart } from "../Cart";
 
-export interface Userdata {
-  name: string;
-  email?: string;
-  password: string;
-}
-
-interface UserProps {
+interface UserProviderProps {
   children: ReactNode;
 }
-
-interface UserProviderValues {
-  // auth: boolean;
-  // setAuth: any;
-  Signup: (userdata: Userdata) => void;
-  Signin: (userdata: Userdata) => void;
-  Signout: () => void;
+interface UserProviderData {
+  signIn: (userData: userData) => void;
+  signUp: (userData: userData) => void;
+  signOut: () => void;
+  authToken: string;
+  userid: string;
+}
+export interface userData {
+  email: string;
+  password: string;
+  name?: string;
 }
 
-const UserContext = createContext<UserProviderValues>({} as UserProviderValues);
+const UserContext = createContext<UserProviderData>({} as UserProviderData);
 
-export const UserProvider = ({ children }: UserProps) => {
+export const UserProvider = ({ children }: UserProviderProps) => {
   const history = useHistory();
-  // const [auth, setAuth] = useState<boolean>(false);
+  const { getCart } = useCart();
 
-  
+  const [authToken, setAuthToken] = useState(
+    () => localStorage.getItem("@Gastrobar:token") || ""
+  );
 
-  const Signup = (userdata: Userdata) => {
-    Api.post("/users/signup", userdata)
-      .then((res) => {
-        localStorage.setItem("@Gastrobar:token", JSON.stringify(res.data.accessToken));
-        localStorage.setItem("@Gastrobar:user", JSON.stringify(res.data.user));
-        // setAuth(true);
-        history.push("/");
+  const [userid, setUserid] = useState(
+    () => localStorage.getItem("@Gastrobar:userId") || ""
+  );
+
+  const signIn = (userData: userData) => {
+    Api.post("/login", userData)
+      .then((response) => {
+        localStorage.setItem("@Gastrobar:token", response.data.accessToken);
+        localStorage.setItem("@Gastrobar:userId", response.data.user.id);
+
+        setAuthToken(response.data.accessToken);
+        setUserid(response.data.user.id);
+        getCart();
+
+
+        history.push("/homepage");
       })
+      .catch((err) => console.log(err));
+
+
+  };
+
+  const signUp = (userData: userData) => {
+    Api.post("/signup", userData)
+      .then((response) => {
+        localStorage.setItem("@Gastrobar:token", response.data.accessToken);
+        localStorage.setItem("@Gastrobar:userId", response.data.user.id);
+
+        setAuthToken(response.data.accessToken);
+        setUserid(response.data.user.id);
+
+        history.push("/homepage");
+      })
+      .catch((_) => console.log("Conta cadastrada ou Dados Invalidos"));
+
+    Api.post(
+      "/cart",
+      { userId: userid, order: [] },
+      {
+        headers: { Authorization: authToken },
+      }
+    )
+      .then((res) => console.log(res))
       .catch((err) => console.log(err));
   };
 
-  const Signin = (userdata: Userdata) =>  {
-    console.log("nao faz nada")
-    Api.post("users/signin", userdata)
-      .then((res) => { 
-        const token = res.data.accessToken;
-        const user = res.data.user;
-        localStorage.setItem("@Gastrobar:token", JSON.stringify(token));
-        localStorage.setItem("@Gastrobar:user", JSON.stringify(user));
-        // setAuth(true);
-        // console.log("é o authtoken", auth);
-        history.push("/");
-      })
-      .catch((err) => console.log(err));
-  };
-
-  const Signout = () => {
+  const signOut = () => {
     localStorage.clear();
-    // setAuth(false);
-    history.push("/signin");
+
+    setAuthToken("");
+    setUserid("");
+
+    history.push("/");
+    console.log("Deslogado com sucesso");
   };
 
   return (
-    <UserContext.Provider value={{  Signup, Signin, Signout }}>
+    <UserContext.Provider
+      value={{ signUp, userid, authToken, signOut, signIn }}
+    >
       {children}
     </UserContext.Provider>
   );

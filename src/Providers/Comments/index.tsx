@@ -1,4 +1,10 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import { useHistory } from "react-router-dom";
 import { Api } from "../../Services/api";
 
@@ -8,56 +14,61 @@ interface Commentsdata {
 }
 
 interface Comments {
-  review: string;
-  name: string;
-  meal?: string;
-  date: string;
+  rating: number;
+  comment: string;
+  author: string;
+  userId: number;
 }
 
 interface CommentsProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
 interface CommentsProviderValues {
   commentsList: Comments[];
-  Send: (Commentsdata: Commentsdata) => void;
-  Take: (Commentsdata: Commentsdata) => void;
+  sendComments: (Commentsdata: Commentsdata) => void;
+  getComments: () => void;
 }
 
-const CommentsContext = createContext<CommentsProviderValues>({} as CommentsProviderValues);
+const CommentsContext = createContext<CommentsProviderValues>(
+  {} as CommentsProviderValues
+);
 
 export const CommentsProvider = ({ children }: CommentsProps) => {
   const history = useHistory();
   const authToken = () => localStorage.getItem("token") || "";
   const [commentsList, setCommentsList] = useState<Comments[]>([]);
 
-  const Send = (commentsdata: Commentsdata) => {
+  const sendComments = (commentsdata: Commentsdata) => {
     Api.post(`/${commentsdata.endpoint}`, commentsdata.comment, {
-      headers: { Authorization: `Bearer ${authToken}`}
+      headers: { Authorization: `Bearer ${authToken}` },
     })
       .then(() => {
         history.push("/");
-        alert("comentário enviado")
+        alert("comentário enviado");
       })
       .catch((err) => console.log(err));
   };
 
-  const Take = (commentsdata: Commentsdata) => {
-    Api.post(`/${commentsdata.endpoint}`, {
-      headers: { Authorization: `Bearer ${authToken}`}
-    } )
+  const getComments = () => {
+    Api.get("/restComments")
       .then((res) => {
         setCommentsList(res.data);
       })
       .catch((err) => console.log(err));
   };
 
-  return (
-      <CommentsContext.Provider value={{commentsList, Send, Take}}>
-          {children}
-      </CommentsContext.Provider>
-  )
-};
+  useEffect(() => {
+    getComments();
+  }, []);
 
+  return (
+    <CommentsContext.Provider
+      value={{ commentsList, sendComments, getComments }}
+    >
+      {children}
+    </CommentsContext.Provider>
+  );
+};
 
 export const useComments = () => useContext(CommentsContext);

@@ -1,4 +1,12 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
+import { Api } from "../../Services/api";
+import { useUser } from "../User";
 
 interface Meal {
   title: string;
@@ -24,6 +32,7 @@ interface CartProviderValue {
   deleteMeal: (meal: Meal) => void;
   increase: (meal: Meal) => void;
   decrease: (meal: Meal) => void;
+  getCart: () => void;
 }
 
 const CartContext = createContext<CartProviderValue>({} as CartProviderValue);
@@ -31,8 +40,25 @@ const CartContext = createContext<CartProviderValue>({} as CartProviderValue);
 export const CartProvider = ({ children }: CartProps) => {
   const [cart, setCart] = useState<Meal[]>([]);
   const [quantity, setQuantity] = useState<Quantity[]>([]);
+  const { userid, authToken } = useUser();
 
-  const changeQuantity = (obj:Meal, operator:number) => {
+  const getCart = () => {
+    console.log("entrei no getCart provider");
+    Api.get(`/cart/${userid}`, {
+      headers: { Authorization: `Bearer ${authToken}` },
+    })
+      .then((res) => {
+        // setCart(res.data);
+        console.log(res.data);
+      })
+      .catch((err) => console.log(err));
+  };
+
+  useEffect(() => {
+    getCart();
+  }, []);
+
+  const changeQuantity = (obj: Meal, operator: number) => {
     const index = quantity.findIndex((item) => item.id === obj.id);
     const newQuantityProduct = {
       id: quantity[index].id,
@@ -43,7 +69,7 @@ export const CartProvider = ({ children }: CartProps) => {
 
   const addMeal = (meal: Meal) => {
     if (cart.includes(meal)) {
-        changeQuantity(meal, 1)
+      changeQuantity(meal, 1);
     } else {
       setCart([...cart, meal].sort((a, b) => a.id - b.id));
       const quantityProduct = {
@@ -51,6 +77,8 @@ export const CartProvider = ({ children }: CartProps) => {
         quantity: 1,
       };
       setQuantity([...quantity, quantityProduct].sort((a, b) => a.id - b.id));
+      const insertQty = [...cart];
+      Api.patch(`/cart/${userid}`);
     }
   };
 
@@ -60,14 +88,16 @@ export const CartProvider = ({ children }: CartProps) => {
   };
 
   const increase = (meal: Meal) => {
-    changeQuantity(meal, 1)
+    changeQuantity(meal, 1);
   };
 
-  const decrease = (meal: Meal) => { changeQuantity(meal, -1)};
+  const decrease = (meal: Meal) => {
+    changeQuantity(meal, -1);
+  };
 
   return (
     <CartContext.Provider
-      value={{ cart, addMeal, deleteMeal, increase, decrease }}
+      value={{ cart, addMeal, deleteMeal, increase, decrease, getCart }}
     >
       {children}
     </CartContext.Provider>

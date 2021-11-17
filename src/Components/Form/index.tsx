@@ -1,7 +1,7 @@
 import * as yup from "yup";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useUser, Userdata } from "../../Providers/User";
+import { useUser, userData } from "../../Providers/User";
 import { useHistory } from "react-router";
 import { FormContainer } from "./style";
 import { TextField } from "@mui/material";
@@ -12,7 +12,7 @@ interface FormProps {
 }
 
 const Form = ({ formType }: FormProps) => {
-  const { Signup, Signin } = useUser();
+  const { signIn, signUp } = useUser();
   const history = useHistory();
   const formSchema = yup.object().shape({
     name: yup.string().required("Digite seu nome"),
@@ -48,23 +48,20 @@ const Form = ({ formType }: FormProps) => {
     resolver: yupResolver(formType === "signup" ? formSchema : loginSchema),
   });
 
-  const SubmitSignup = (dataForm: Userdata) => {
+  const SubmitSignup = (dataForm: userData) => {
     const newUser = {
       name: dataForm.name,
       email: dataForm.email,
       password: dataForm.password,
     };
-    Signup(newUser);
+    signUp(newUser);
   };
 
-  const SubmitSignin = (data: Userdata) => {
-Signin(data);
-     
-    };
-
+  const SubmitSignin = (data: userData) => {
+    signIn(data);
+  };
 
   return (
-    
     <>
       {formType === "signup" ? (
         <FormContainer onSubmit={handleSubmit(SubmitSignup)}>
@@ -122,9 +119,11 @@ Signin(data);
             onClick={() => handleSubmit(SubmitSignin)}
           />
           <p>Crie sua conta para saborear muitas delícias e matar sua fome!</p>
-          <FormsButton children="Cadastrar" onClick={()=> history.push("/signup")} />
+          <FormsButton
+            children="Cadastrar"
+            onClick={() => history.push("/signup")}
+          />
         </FormContainer>
-
       )}
     </>
   );

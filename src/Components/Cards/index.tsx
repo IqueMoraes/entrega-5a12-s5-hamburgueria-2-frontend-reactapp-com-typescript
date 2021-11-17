@@ -1,5 +1,6 @@
 import { Buttons } from "../Buttons";
 import { useCart } from "../../Providers/Cart";
+import { CardContainer } from "./style";
 
 interface CardsProps {
     item:{
@@ -14,13 +15,23 @@ interface CardsProps {
 export const Cards = ({item}:CardsProps) => {
     const { addMeal } = useCart();
 
+    const CategoryTranslate = (category:string) => {
+        if(category === "food") return "Refeição";
+        else if ( category === "drinks") return "Bebida";
+        else return "Sem categoria";
+
+
+    }
+
    return (
-<div>
-    <div>image</div>
+<CardContainer>
+    <div className="image"></div>
+    <div className="content">
     <h3>{item.title}</h3>
-    <h5>{item.category}</h5>
-    <h4>{item.price}</h4>
+    <h5>{CategoryTranslate(item.category)}</h5>
+    <p className="price">R$ {item.price}</p>
     <Buttons menuCard medium={false} children="Adicionar" onClick={() => addMeal(item)} />
-</div>
+    </div>
+</CardContainer>
    ) 
 }

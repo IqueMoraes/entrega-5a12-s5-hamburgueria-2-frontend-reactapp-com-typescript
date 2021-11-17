@@ -1,25 +1,21 @@
-import { MenuList } from "@mui/material"
-import { ReactNode } from "react"
-import { CartProvider } from "./Cart"
-import { CommentsProvider } from "./Comments"
-import { UserProvider } from "./User"
+import { ReactNode } from "react";
+import { CartProvider } from "./Cart";
+import { CommentsProvider } from "./Comments";
+import { MenuProvider } from "./MenuList";
+import { UserProvider } from "./User";
 
 interface ProvidersProps {
-    children: ReactNode;
+  children: ReactNode;
 }
 
-
-export const Providers = ({children}:ProvidersProps) => {
-    return (
-<CartProvider>
-    <CommentsProvider>
-        <MenuList>
-            <UserProvider>
-                {children}
-            </UserProvider>
-        </MenuList>
-    </CommentsProvider>
-</CartProvider>
-        
-    )
-}
+export const Providers = ({ children }: ProvidersProps) => {
+  return (
+    <UserProvider>
+      <CommentsProvider>
+        <MenuProvider>
+          <CartProvider>{children}</CartProvider>
+        </MenuProvider>
+      </CommentsProvider>
+    </UserProvider>
+  );
+};

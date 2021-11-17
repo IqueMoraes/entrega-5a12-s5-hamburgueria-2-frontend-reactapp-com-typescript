@@ -13,6 +13,7 @@ export const StyledButton = styled.button<StyledButtonProps>`
   padding: 0 20px;
   background-color: #e0e0e0;
   color: #828282;
+  border: none;
 
   :hover {
     background-color: #828282;

@@ -1,18 +1,22 @@
-import { DivButton, Header } from "./style";
+import { BodyHome, DivButton, Header, Ul } from "./style";
 import { useMenu } from "../../Providers/MenuList";
 import { FaSearch, FaShoppingCart, FaSignOutAlt } from "react-icons/fa";
 import { Logo } from "../../Components/Logo";
 import { useState } from "react";
 import { useUser } from "../../Providers/User";
+import { Cards } from "../../Components/Cards";
+import { useCart } from "../../Providers/Cart";
 
 export const Homepage = () => {
-  const { filteredMenuList } = useMenu();
+  const { filteredMenuList, FilterMenu } = useMenu();
   const [inputMenu, setInputMenu] = useState<boolean>(false);
-  const { Signout } = useUser();
-  console.log(filteredMenuList);
+  const { signOut } = useUser();
+  const { cart, addMeal, deleteMeal } = useCart();
+  console.log(cart);
+
 
   return (
-    <div>
+    <BodyHome>
       <Header>
         <Logo />
         <DivButton>
@@ -21,20 +25,20 @@ export const Homepage = () => {
           </div>
           <div>
             <FaShoppingCart />
-            <h4 className="cart">0</h4>
+            <h4 className="cart">{cart.length}</h4>
           </div>
           <div>
-            <FaSignOutAlt onClick={()=> Signout()}/>
+            <FaSignOutAlt onClick={() => signOut()} />
           </div>
         </DivButton>
       </Header>
       <div>
-        {/* <ul>
+        <Ul style={{display: "flex", overflow:"auto"}}>
           {filteredMenuList.map((item) => (
-            <li key={item.id}>{item.title}</li>
+            <li key={item.id} ><Cards item={item}/></li>
           ))}
-        </ul> */}
+        </Ul>
       </div>
-    </div>
+    </BodyHome>
   );
 };
